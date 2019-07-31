@@ -53,9 +53,9 @@ body {
 
 .red a {
   background-image: linear-gradient(to right, rgba(255,255,255,0) 50%, rgba(217, 30, 24, 1) 50%);
-  background-position: -0% 0;
+  background-position: -99.99% 0;
   background-size: 200% auto;
-  color: #222;
+  color: white;
   line-height: 1em;
   text-decoration: none;
   transition: background-position 0.1s ease-out;
@@ -65,9 +65,6 @@ a:hover {
   background-position: -99.99% 0;
 }
 
-a:active {
-  background-position: -99.99% 0;
-}
 
 .about {
     background-color: white;
