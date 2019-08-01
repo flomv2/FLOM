@@ -2,6 +2,10 @@
   background-color: white;
 }
 
+.navbar{
+height: 68px;  
+font-size: 18.5px;
+}
 
 body {
   font-family:'IBM Plex Sans', sans-serif !important;
