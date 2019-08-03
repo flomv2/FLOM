@@ -1,0 +1,108 @@
+.home-bg {
+  background-color: white;
+}
+
+.navbar{
+height: 68px;  
+font-size: 18.5px;
+}
+
+body {
+  font-family:'IBM Plex Sans', sans-serif !important;
+  background-color: rgba(255, 0, 0, 0.0) !important;
+}
+
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+}
+
+
+.gray a {
+  background-image: linear-gradient(to right, rgba(255,255,255,0) 50%, rgba(210, 215, 211, 1) 50%);
+  background-position: -0% 0;
+  background-size: 200% auto;
+  color: #222;
+  line-height: 1em;
+  text-decoration: none;
+  transition: background-position 0.1s ease-out;
+}
+
+.red a {
+  background-image: linear-gradient(to right, rgba(255,255,255,0) 50%, rgba(217, 30, 24, 1) 50%);
+  background-position: -99.99% 0;
+  background-size: 200% auto;
+  color: white;
+  line-height: 1em;
+  text-decoration: none;
+  transition: background-position 0.1s ease-out;
+}
+
+a:hover {
+  background-position: -99.99% 0;
+}
+
+
+.about {
+    background-color: white;
+    margin: 10px;
+    padding: 10px;
+}
+
+.container {
+  background-color: rgba(255, 0, 0, 0.0) !important;
+}
+
+.fixed-arrow {
+  position: absolute;
+  bottom: 25px;
+  left: 49%;
+  align: center;
+}
+
+div .landing {
+  height: 100vh;
+}
+
+.big {
+  font-size: 20px;
+}
+
+.footer {
+  font-size: 12px;
+  color: rgb(137, 137, 137);
+  margin-bottom: 50px;
+}
+
+.center {
+  text-align: center;
+}
+
+
