@@ -29,9 +29,9 @@ with open(CONFIG_FILE) as cfile:
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config["SECRET KEY"]
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -63,7 +63,7 @@ ROOT_URLCONF = 'WebApp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'), BASE_DIR],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'), BASE_DIR, os.path.join(BASE_DIR, 'templates/html')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -109,9 +109,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
-#cache settings
-#comment out for local running
+# cache settings
+# comment out for local running
 # CACHES = {
 #     'default':{
 #         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',

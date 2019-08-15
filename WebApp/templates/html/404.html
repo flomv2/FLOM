@@ -1,0 +1,52 @@
+{# 404.html #}
+{# template for displaying the 404 error page  #}
+{% extends "html/main.html" %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}" type="style/css" />
+{% endblock %}
+
+
+{% block body %}
+
+
+<div class="container">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+        integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+    <div class="about" style="align-items: right; margin-left: 15%; margin-right: 15%;">
+        <br>
+        <br>
+        <h1 align="middle"> <b>404 </b></h1>
+        <br>
+        <h4 align="middle"> <b>Folsom Library Occupancy Monitor </b></h4>
+
+        <br>
+        <p align="middle">Something has gone wrong. Blame one of the people below or if you feel so inclined, please
+            raise an issue at this <a href="https://github.com/FolsomLibraryOccupanyMonitor/FLOM/issues">link</a>.</p>
+        <p style="margin-left: 45%;">
+            <a href="https://github.com/flomv2/FLOM" style="font-size: 3rem;"> <i class="fab fa-github"></i> </a>
+
+            <div class="links" style="align-items: right;">
+                Developers (Spring 2019): <a href="https://github.com/prashb99">prashb99</a>, <a
+                    href="https://github.com/Wixby">Wixby</a>, <a href="https://github.com/jgaltman">jgaltman</a>, <a
+                    href="https://github.com/youngcc3157">youngcc3157</a>, <a
+                    href="https://github.com/kaijianZ">kaijianZ</a>, <a
+                    href="https://github.com/jingsting">jingsting</a>
+                <br>
+                Developers (Summer 2019): <a href="https://github.com/prashb99">prashb99</a>, <a
+                    href="https://github.com/Jason-Durr">Jason-Durr</a>, <a
+                    href="https://github.com/SquidThePrinter">SquidThePrinter</a>, <a
+                    href="https://github.com/pangtsu">Jiawen-Lin</a>, <a
+                    href="https://github.com/Jcherella">Jcherella</a>, <a
+                    href="https://github.com/barnesv17">barnesv17</a>, <a href="https://github.com/emansyl">Emmanuel
+                    Sylvester</a>, <a href="https://github.com/ChrisReed0114">ChrisReed0114</a>, <a
+                    href="https://github.com/UnMcDanno">Junyi Zhang</a>
+            </div>
+        </p>
+    </div>
+
+</div>
+</div>
+{% endblock %}
