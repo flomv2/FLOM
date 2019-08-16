@@ -1,0 +1,17 @@
+Progress Documentation on an Intuitive Installation Process
+By Chris Reed
+
+So when we completely restarted the implementation of the django app I was tasked with developing an easier install method so that instead of copying and pasting a bunch of command line arguments.  This would make it much easier for others to install django and get started.  Ideally what I would be looking to do is to implement a method where someone developing this project on any operating system could just install a few things and be ready to run a django app, and then FLOM.  This proved to be much more difficult to produce than I would have thought.
+So the initial thought was to make a Makefile which was very easy because it was just a bunch of command line arguments that had to be run.  This method was pretty easy to implement and it works great because it is super fast. The main limitation is that make only works on linux and mac, not windows. I want this installation process to be as easy as possible so I then looked into other options.
+At first I thought maybe we could utilize a Dockerfile so that developers could just work on Flom in a docker container and that way we could keep more organized about utilities one would need to work on FLOM and keep the installation lightweight and separate it from the rest of a developer work.  The only problem is that although you can use docker on most platforms, the dockerfile would have to be written with different commands for linux and windows.  Another thing to consider is that the developer would have to install docker as well, but the installation for process for docker is not too bad so that would not be why I would discredit docker for that reason alone.
+Next I considered using Cmake.  Cmake would be great because it can be run on any system and we could distribute the same folder for any system.  The biggest difficulties with Cmake is that it would probably take the most amount of work for me to learn how to specifically set it up to install this software and the user would then have to install cmake on their computer which I personally found to be much more difficult than something like docker or even django itself.
+In the end I think it would probably be best to look into finding a way to make executables for the most popular systems so that a new developer could just run the executable with the default system on their computer and have all of the files there.  I am currently looking into how one would do that.  A lot of my time has been spent going through different tutorials and documentations to figure out what the best approach for doing this would be.  A sample Makefile and Dockerfile can be found in the folder, these both should work for a new user on linux.  If others could try it out to make sure that would be awesome!  I also have included links to some of the resources I have used so far.  I will continue to update this doc as I make further developments.
+Resources:
+
+https://www.gnu.org/software/make/manual/html_node/index.html#SEC_Contents
+http://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
+https://www.gnu.org/software/automake/manual/html_node/Complete.html#Complete
+https://cmake.org/cmake-tutorial/
+https://cmake.org/runningcmake/
+https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/manage-windows-dockerfile
+https://docs.docker.com/v17.12/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
