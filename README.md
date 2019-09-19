@@ -2,7 +2,7 @@
 
 ### Folsom Library Occupancy Manager
 
-FLOM is a web application created by a group of RPI students that allows the students and library staff at RPI to visualize the occupancy and gather usage statistics of the Folsom Library Occupancy Monitor.
+FLOM is a web application created by a group of RPI students that allows the students and library staff at RPI to visualize the occupancy and gather usage statistics of Folsom Library private study rooms.
 
 ## Getting Started
 To get started all you need to do is clone the repository onto your local machine
