@@ -7,6 +7,8 @@ import datetime
 import threading
 from floor.models import Room
 from django.db.models import Sum, Avg, F
+from django.contrib.auth.decorators import login_required
+
 
 @login_required
 def index(request):
