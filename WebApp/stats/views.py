@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response
-from stats.models import StatsLog, Day, Week, Month, Year
+from stats.models import StatsLog, Day, Month, Year
 from datetime import datetime
 from django.core.cache import cache
 import time
