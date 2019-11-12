@@ -59,12 +59,6 @@ def threadf(name):
 	while True:
 		time.sleep(5)
 		now = datetime.datetime.now()
-		if now.hour != lastHour:
-			lastHour = now.hour
-			for ID in floor3IDs:
-				createTimeObject(ID,"hour",now)
-			for ID in floor4IDs:
-				createTimeObject(ID,"hour",now)
 		if now.day != lastDay:
 			lastDay = now.day
 			for ID in floor3IDs:

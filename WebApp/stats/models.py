@@ -37,12 +37,6 @@ class Day(models.Model):
 	totalOccupants = models.IntegerField(default=0)
 	avgOccLength = models.DurationField()
 
-class Week(models.Model):
-	date = models.DateTimeField()
-	roomID = models.CharField(max_length=5)
-	totalOccupants = models.IntegerField(default=0)
-	avgOccLength = models.DurationField()
-
 class Month(models.Model):
 	date = models.DateTimeField()
 	roomID = models.CharField(max_length=5)
