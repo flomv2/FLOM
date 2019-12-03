@@ -7,6 +7,7 @@ import datetime
 import threading
 from floor.models import Room
 from django.db.models import Sum, Avg, F
+from django.contrib.auth.decorators import login_required
 
 @login_required
 def index(request):
@@ -41,9 +42,9 @@ def createTimeObject(ID, duration, now):
 def threadf(name):
 	'''
 	Seperate thread which creates time objects
-	every hour/day/month/year. Everytime one of 
+	every hour/day/month/year. Everytime one of
 	those pass create an object with information
-	from logs for each room 
+	from logs for each room
 	'''
 	start = datetime.datetime.now()
 	lastHour = start.hour
@@ -72,7 +73,7 @@ def threadf(name):
 		if now.month != lastMonth:
 			lastMonth = now.month
 			for ID in floor3IDs:
-				createTimeObject(ID,"month",now)				
+				createTimeObject(ID,"month",now)
 			for ID in floor4IDs:
 				createTimeObject(ID,"month",now)
 		if now.year != lastYear:
@@ -80,7 +81,7 @@ def threadf(name):
 			for ID in floor3IDs:
 				createTimeObject(ID,"year",now)
 			for ID in floor4IDs:
-				createTimeObject(ID,"year",n)	
+				createTimeObject(ID,"year",n)
 
 
 def startThread():
@@ -128,7 +129,7 @@ def calcTimeDifference(query):
 def calcAvgOccLength(query, duration):
 	'''
 	Return the average amount of time
-	the room has spent occupied. 
+	the room has spent occupied.
 	Gets information from logs.
 	'''
 	if duration == 'day':
