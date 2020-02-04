@@ -1,1 +1,1 @@
-This folder is being used by Brandon Cabaleiro to test the infrared sensors and ultra sonic sensor with the Arduino Uno micro controller.
+This folder is being used by Brandon Cabaleiro to test the infrared sensors and ultra sonic sensor with the Arduino Nano micro controller.
