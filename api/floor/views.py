@@ -6,37 +6,65 @@ from django.template import RequestContext
 from datetime import datetime
 from stats.views import log
 from .models import Floor, Room
+from django.contrib.auth import authenticate, login
+from rest_framework.decorators import api_view
 # Create your views here. A view is a Python function that takes a web request and returns a web response.
-from django.contrib.auth.decorators import login_required
+#from django.contrib.auth.decorators import login_required
 
 
 
-@login_required
-def enterRoom(request, floor, ID, password):
+"""
+TODO: Change this to a post request
+have user and password in post request body instead
+of url
+
+"""
+@api_view(['POST'])
+def enterRoom(request, floor, ID):
 	'''
 	This function is called when someone enters a room
 	@modifies Room object with matching ID
 	@return Response to server
 	'''
-	# Check for room existence
-	if ID in rooms.keys():
-		currRoom = rooms[ID]
-		# if the current room is already occupied
-		if currRoom.occupied:
-			return HttpResponse("Room already occupied")
-		else:
-			# modify current room to occupied = True and update current datetime
-			currRoom.occupied = True
-			currRoom.lastEntered = datetime.now()
-			log(ID,1)
-			# save changes made to current room (to database)
-			currRoom.save()
-			# create the dictionary of rooms needed to update webpage
-			roomList = getUpdatedRoomsList(floors[floor])
-			# set the cache with the new room display based on changes made
-			display = render_to_response('floor/templates/html/floor' + floor + '.html', roomList)
-			cache.set("display" + floor, display, None)
-			return HttpResponse("Room successfully entered!")
-	# Room not found
+	data = request.data
+
+	username = ''
+	password = ''
+
+	try:
+		username = data['username']
+		password = data['password']
+	except:
+		return HttpResponse("Please supply username and password in body", 403)
+
+	#use post data information
+	user = authenticate(username=username, password=password)
+
+	if user is not None:
+		pass
+		# Continue execution
 	else:
-		return HttpResponse("Room Not Found")
+		return HttpResponse("Unauthorized", 401)
+	
+	currRoom = None
+
+	try:
+		currRoom = Room.objects.get(roomID=ID)
+	except:
+		return HttpResponse("Room Not Found", 404)
+
+	if currRoom.occupied:
+		return HttpResponse("Room already occupied")
+	else:
+		# modify current room to occupied = True and update current datetime
+		# modify current room to occupied = True and update current datetime
+		currRoom.occupied = True
+		currRoom.lastEntered = datetime.now()
+		#log(ID,1) # We need to uncomment this once stat app models and views are finished
+			
+		# save changes made to current room (to database)
+		currRoom.save()
+			
+		# create the dictionary of rooms needed to update webpage
+	
+		return HttpResponse("Room successfully entered!")
