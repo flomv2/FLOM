@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.core.cache import cache
 from django.template import RequestContext
 from datetime import datetime
-from stats.views import log
+#from stats.views import log
 from .models import Floor, Room
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
@@ -35,7 +35,7 @@ def enterRoom(request, floor, ID):
 		username = data['username']
 		password = data['password']
 	except:
-		return HttpResponse("Please supply username and password in body", 403)
+		return HttpResponse("Please supply username and password in body",status= 403)
 
 	#use post data information
 	user = authenticate(username=username, password=password)
@@ -44,14 +44,14 @@ def enterRoom(request, floor, ID):
 		pass
 		# Continue execution
 	else:
-		return HttpResponse("Unauthorized", 401)
+		return HttpResponse("Unauthorized",status= 401)
 	
 	currRoom = None
 
 	try:
 		currRoom = Room.objects.get(roomID=ID)
 	except:
-		return HttpResponse("Room Not Found", 404)
+		return HttpResponse("Room Not Found",status= 404)
 
 	if currRoom.occupied:
 		return HttpResponse("Room already occupied")
@@ -68,3 +68,49 @@ def enterRoom(request, floor, ID):
 		# create the dictionary of rooms needed to update webpage
 	
 		return HttpResponse("Room successfully entered!")
+
+@api_view(['POST'])
+def exitRoom(request, floor, ID):
+	'''
+	This function is called when someone exits a room
+	@modifies Room object with matching ID
+	@return Response to server
+	'''
+	
+	data = request.data
+
+	username = ''
+	password = ''
+
+	try:
+		username = data['username']
+		password = data['password']
+	except:
+		return HttpResponse("Please supply username and password in body",status= 403)
+
+	#use post data information
+	user = authenticate(username=username, password=password)
+
+	if user is not None:
+		pass
+		# Continue execution
+	else:
+		return HttpResponse("Unauthorized",status= 401)
+	
+	currRoom = None
+
+	try:
+		currRoom = Room.objects.get(roomID=ID)
+	except:
+		return HttpResponse("Room Not Found",status= 404)
+
+	if not currRoom.occupied:
+		return HttpResponse("Room already empty")
+
+	currRoom.occupied = False
+	currRoom.lastExited = datetime.now()
+	#log(ID,0) #uncomment when stats log is implemeted
+	# save changes made to current room (to database)
+	currRoom.save()
+	return HttpResponse("Room successfully exited!")
+	

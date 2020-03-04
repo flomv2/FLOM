@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from floor import views as floor_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("enter/<floor>/<ID>", floor_views.enterRoom, name = "enterRoom"),
+	path("exit/<floor>/<ID>", floor_views.exitRoom, name= "exitRoom")
 ]
