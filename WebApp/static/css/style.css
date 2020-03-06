@@ -184,6 +184,12 @@ div .landing {
     padding: 10px;
 }
 
+.bear-img {
+    margin: auto;
+    width: 55%;
+    padding: 10px;
+}
+
 .login-sub{
     background-color: #b3252c;
     border: none;

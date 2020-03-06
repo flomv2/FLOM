@@ -45,6 +45,13 @@
         <div class= "login-main">
              {# <!--logo --> #}
             <img class="login-img" src="{% static 'images/logo1.jpg' %}" alt="FLOM Logo">
+            <img class="bear-img" src="{% static 'images/bear.jpg' %}" alt="Bear">
+            <br>
+            <a href="bear/" class="login-sub" role="button">Bear</a>
+            <br>
+            <br>
+
+
 		      <form method="post">    {# <!-- form user inputs login info --> #}
 			      {% csrf_token %}
 			      {{ form.as_p }}
