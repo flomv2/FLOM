@@ -1,50 +1,68 @@
-# FLOM
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-### Folsom Library Occupancy Manager
+## Available Scripts
 
-FLOM is a web application created by a group of RPI students that allows the students and library staff at RPI to visualize the occupancy and gather usage statistics of the Folsom Library Occupancy Monitor.
+In the project directory, you can run:
 
-## Getting Started
-To get started all you need to do is clone the repository onto your local machine
-by typing ```git clone https://github.com/flomv2/FLOM.git``` in your terminal.
+### `npm start`
 
-Before you can run the web application, you will need to complete the Django install tutorial that is located on our GitHub in the Tutorials folder.
+Runs the app in the development mode.<br />
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-Please refer to this [Django tutorial](https://docs.djangoproject.com/en/2.2/intro/tutorial01/) or simply the
-[Django 2.2 documentation](https://docs.djangoproject.com/en/2.2/) for information about using our framework. Django provides a robust templating framework for HTML (that means please use it).
+The page will reload if you make edits.<br />
+You will also see any lint errors in the console.
 
-## Build Instructions
+### `npm test`
 
-Once the URI is cloned, you can then run Django by moving into the WebApp directory in flom and running ```python3 manage.py runserver``` . This will start the web application on your localhost. In later versions you may need to install and setup Postgresql database which we will have tutorials on.
+Launches the test runner in the interactive watch mode.<br />
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-## Code of Conduct and Style Guidelines
+### `npm run build`
 
-Our developers pride ourselves on writing beautiful and efficient code. Contributers should follow standard good style practices such as: useful commenting, proper indentation, and portability. Our Web Application directory looks like this
+Builds the app for production to the `build` folder.<br />
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-    `Tutorials/`        - Tutorials on how to set up different aspcts of the flom project
-    `WebApp/`           - Main source code in which apps of each web page are created and urls are connected
-    `License.md`  		- MIT License
-    `README.md`         - This file
+The build is minified and the filenames include the hashes.<br />
+Your app is ready to be deployed!
 
-## Website/Communication
-https://rcos.io/projects/flomv2/flom/profile      
-Contact any of the contributors on this page and we can add you to our Mattermost chat! This is also where you can find our blog.
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-## Git Branching Model
+### `npm run eject`
 
-When making a new feature or a bug fix, please make a new branch from **Master** (or branch you are trying to modify). On your command line, run
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-`git checkout **(original branch name)**` \
-`git branch [new branch name]` \
-`git checkout [new branch name]`
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Branch names should be concise and self-explanatory. Please make your branch names lowercase and use hyphens (-) for spaces. You don't need to prepend your branch name with or include other details such as your name. For example, a feature branch for updating the about page UI might be called `about-styles` or `about-page-ui`.
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-When you have changes to your local code base in your new branch, commit push them with
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-`git commit -m [Commit message]` \
-`git push`
+## Learn More
 
-Commit messages should be concise and self-explanatory, just like branch names.
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-Once your have completed your feature or fixed you bug, please perform a **Pull Request** into master, even if you are an admin. Pull requests provide a more readable commit log, highlighting major features and changes. On the Github repository website, click new pull request and select `"master" <- "your branch name"`. This requires an admin to approve your changes before they are live on the develop branch.
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+
+### Analyzing the Bundle Size
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+
+### Making a Progressive Web App
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+
+### Advanced Configuration
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+
+### Deployment
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+
+### `npm run build` fails to minify
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
