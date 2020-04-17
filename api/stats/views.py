@@ -6,6 +6,10 @@ from .models import Day, Month, Year
 # Create your views here.
 
 """
+TODO: fix monthsInfo and yearsInfo and test daysInfo to see if it works, which I don't think it does
+"""
+
+"""
 @params - 
     * floor: The floor that the room is on (floor3 or floor4)
     * ID: The number of the room (365, 415, etc.)
@@ -66,10 +70,24 @@ def getMonthsInfo(floor, ID, year):
 @params - 
     * floor: The floor that the room is on
     * ID: The number of the room
-@returns - A list of occupancy stats for a given room for every year in the form [date, totalOccupants, avgOccLength]
+@returns - A list of occupancy stats for a given room for the last ten years in the form [date, totalOccupants, avgOccLength]
 
 NOTE: Maybe it would be better if we made it so that the user decides a range of years to get that stats for because 
 making it so that it returns ALL the data for EVERY year would be a little much
 """
 def getYearsInfo(floor, ID):
+    yearsInfo = []
+    y = year.date.year
+    for i in range(10):
+        tempData = []
+        y = datetime.datetime(year.date.year - i, 1, 1)
+        year = Year.objects.get(year = y, roomID = ID)
+
+        tempData.append(year.date)
+        tempData.append(year.totalOccupants)
+        tempData.append(year.avgOccLength)
+
+        yearsInfo.append(tempData)
+
     return HttpResponse("getYearsInfo() not yet implemented", status = 404)
+    # return yearsInfo
