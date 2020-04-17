@@ -24,7 +24,7 @@ def getDaysInfo(floor, ID, month):
     totalDays = (end - start).days
     days = [start + k * delta for k in range(totalDays)]
 
-    for day in totalDays:
+    for day in days:
         tempData = []
         temp = Day.objects.get(date = day, roomID = ID)
 
@@ -35,6 +35,7 @@ def getDaysInfo(floor, ID, month):
         daysInfo.append(tempData)
 
     return HttpResponse("getDaysInfo() not yet implemented", status = 404)
+    # return daysInfo
 
 """
 @params - 
@@ -59,6 +60,7 @@ def getMonthsInfo(floor, ID, year):
         monthsInfo.append(tempData)
 
     return HttpResponse("getMonthsInfo() not yet implemented", status = 404)
+    # return monthsInfo  
 
 """
 @params - 
