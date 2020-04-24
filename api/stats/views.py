@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework import viewsets
-from .models import Day, Month, Year
+from .models import Day, Month, Year, StatsLog
 from .serializers import DaySerializer, MonthSerializer, YearSerializer
+from datetime import datetime
 
 # Create your views here.
 
@@ -44,3 +45,8 @@ making it so that it returns ALL the data for EVERY year would be a little much
 class yearsView(viewsets.ModelViewSet):
     queryset = Year.objects.all()
     serializer_class = YearSerializer
+
+# Create your views here.
+def log(rID, e):
+	currLog = StatsLog(event = e, roomID = rID, date = datetime.now())
+	currLog.save()

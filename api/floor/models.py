@@ -1,6 +1,7 @@
 from django.db import models
 
 # Create your models here.
+
 class Floor(models.Model):
 	'''
 	This floor model is used to represent both floor 3 and floor 4
