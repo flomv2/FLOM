@@ -14,5 +14,8 @@ yearRouter.register('', views.yearsView)
 urlpatterns = [
     path('days/', include(dayRouter.urls)),
     path('months/', include(monthRouter.urls)),
-    path('years/', include(yearRouter.urls))
+    path('years/', include(yearRouter.urls)),
+    path("days/<ID>/<month>", views.getDaysInfo, name = "getDaysInfo"),
+    path("months/<ID>/<year>", views.getMonthsInfo, name = "getMonthsInfo"),
+    path("years/<ID>", views.getYearsInfo, name = "getYearsInfo")
 ]

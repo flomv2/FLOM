@@ -9,14 +9,14 @@ class StatsLogSerializer(serializers.ModelSerializer):
 class DaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Day
-        fields = ['date', 'totalOccupants', 'avgOccLength']
+        fields = ['roomID', 'date', 'totalOccupants', 'avgOccLength']
 
 class MonthSerializer(serializers.ModelSerializer):
     class Meta:
         model = Month
-        fields = ['date', 'totalOccupants', 'avgOccLength']
+        fields = ['roomID', 'date', 'totalOccupants', 'avgOccLength']
 
 class YearSerializer(serializers.ModelSerializer):
     class Meta:
         model = Year
-        fields = ['date', 'totalOccupants', 'avgOccLength']
+        fields = ['roomID', 'date', 'totalOccupants', 'avgOccLength']
