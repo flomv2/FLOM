@@ -3,13 +3,13 @@ from . import views
 from rest_framework import routers
 
 dayRouter = routers.DefaultRouter()
-dayRouter.register('days', views.getDaysInfo)
+dayRouter.register('', views.daysView)
 
 monthRouter = routers.DefaultRouter()
-monthRouter.register('months', views.getMonthsInfo)
+monthRouter.register('', views.monthsView)
 
 yearRouter = routers.DefaultRouter()
-yearRouter.register('years', views.getYearsInfo)
+yearRouter.register('', views.yearsView)
 
 urlpatterns = [
     path('days/', include(dayRouter.urls)),
