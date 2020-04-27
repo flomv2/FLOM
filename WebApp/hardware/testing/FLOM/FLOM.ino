@@ -6,6 +6,7 @@ long duration;
 int distance;
 int average;
 int sonic_base;
+int update_status;
 
 void setup() 
 {
