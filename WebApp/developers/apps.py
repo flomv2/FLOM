@@ -1,5 +1,10 @@
 from django.apps import AppConfig
 
 
-class FloorConfig(AppConfig):
-    name = 'floor'
+class AboutConfig(AppConfig):
+	'''
+	About page app
+	@member (s)
+		name - name of application
+	'''
+    name = 'developers'
