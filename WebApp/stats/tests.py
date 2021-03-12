@@ -1,8 +1,8 @@
 from django.test import TestCase
-import datetime
+#import datetime
 from .models import *
 from .views import *
-from datetime import datetime
+from datetime import datetime as dt
 import pytz
 
 class RoomUsageModelTest(TestCase):
@@ -36,25 +36,29 @@ class RoomUsageModelTest(TestCase):
 	#test logs are saved properly
 	@classmethod
 	def testLog(self):
-		d1 = datetime(2018, 11, 15, 2, 35, 2)
+		d1 = dt(2019, 11, 15, 2, 35, 2)
 		print("ORIGINAL: ",d1)
+		#Creates test events that occurr
 		log1 = StatsLog(event = 1, roomID = "311", date = d1)
 		log1.save()
-		log1 = StatsLog(event = 1, roomID = "311", date = d1)
-		d2 = datetime(2019, 11, 15, 1, 40, 3)
-		log2 = StatsLog(event = 1, roomID = "311", date = d2)
+		d2 = dt(2019, 11, 15, 2, 40, 3)
+		log2 = StatsLog(event = 0, roomID = "311", date = d2)
 		log2.save()
-		d3 = datetime(2019, 11, 15, 3, 30, 4)
+		d3 = dt(2019, 11, 15, 3, 30, 4)
 		log3 = StatsLog(event = 1, roomID = "311", date = d3)
 		log3.save()
+		d4 = dt(2019, 11, 15, 4, 37, 23)
+		log4 = StatsLog(event = 0, roomID = "311", date = d4)
+		log4.save()
 		timeObject = Day()
 		timeObject.roomID = "311"
 		#datetime(Year Month Day Hour Minute Seconds)
-		timenow = datetime.now()
-		print(timenow.day)
+		timenow = dt(2019, 11, 15, 5, 37, 23)
+		#Creates the test day to create statistics for
 		timeObject.date = timenow
 		duration = "day"
 		logList = importLog("311", timenow, duration)
+		#Calculates the statistics for that day and then saves
 		timeObject.totalOccupants = getOccupants(logList, duration)
 		timeObject.avgOccLength = calcAvgOccLength(logList, duration)
 		timeObject.save()
