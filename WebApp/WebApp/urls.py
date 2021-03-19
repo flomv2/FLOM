@@ -16,11 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.contrib.auth import views as auth_views
+from rest_framework import routers
+from graphDisplay import views as graphViews
+
+router = routers.DefaultRouter()
+router.register(r'StatsLog', graphViews.StatsLogView, 'StatsLog')
 
 urlpatterns = [
 
     path('', auth_views.LoginView.as_view(template_name='html/login.html'), name='login'),
 	path('about/', include('about.urls')),
+    path('graphs/', include(router.urls)),
     path('floor/', include('floor.urls')),
     path('about/', include('about.urls')),
     path('stats/', include('stats.urls')),
