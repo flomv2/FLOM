@@ -1,4 +1,4 @@
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 
 from django.contrib.auth.decorators import login_required
 
@@ -8,4 +8,4 @@ def index(request):
 	'''
 	@return the display for the about page
 	'''
-	return render_to_response('about/templates/html/about.html')
+	return render(request, 'about/templates/html/about.html')

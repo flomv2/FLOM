@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.cache import cache
 from django.template import RequestContext
@@ -61,7 +61,7 @@ def enterRoom(request, floor, ID, password):
 			# create the dictionary of rooms needed to update webpage
 			roomList = getUpdatedRoomsList(floors[floor])
 			# set the cache with the new room display based on changes made
-			display = render_to_response('floor/templates/html/floor' + floor + '.html', roomList)
+			display = render(None, 'floor/templates/html/floor' + floor + '.html', roomList)
 			cache.set("display" + floor, display, None)
 			return HttpResponse("Room successfully entered!")
 	# Room not found
@@ -91,7 +91,7 @@ def exitRoom(request, floor, ID, password):
 			# create dictionary of rooms needed to update webpage
 			roomList = getUpdatedRoomsList(floors[floor])
 			# set the cache with the new room display based on changes made
-			display = render_to_response('floor/templates/html/floor' + floor + '.html', roomList)
+			display = render(None, 'floor/templates/html/floor' + floor + '.html', roomList)
 			cache.set("display" + floor, display, None)
 			return HttpResponse("Room successfully exited!")
 	# Room not found
@@ -115,7 +115,7 @@ def createRooms(floor, IDs):
 			floor.roomCount += 1
 			floor.save()
 	roomList = getUpdatedRoomsList(floor)
-	display = render_to_response('floor/templates/html/' + floor.name + '.html', roomList)
+	display = render(None, 'floor/templates/html/' + floor.name + '.html', roomList)
 	cache.set('display'+floor.name[-1], display, None)
 
 def populateFloors():

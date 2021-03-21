@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render
 from stats.models import StatsLog, Day,  Month, Year
 from django.http import HttpResponse
 from datetime import datetime
@@ -74,13 +74,13 @@ def index(request):
 			createGraph(stats['day'], duration='day')
 			createGraph(stats['month'], duration='month')
 			createGraph(stats['year'], duration='year')
-			return render_to_response('stats/templates/html/stats.html', {'stats':stats})
+			return render(request, 'stats/templates/html/stats.html', {'stats':stats})
 	else:
 		form = RoomRequestForm()
 	return render(request, 'stats/templates/html/stats.html', {'form': form})
 
 def log(rID, e):
-	currLog = StatsLog(event = e, roomID = rID, date = datetime.now())
+	currLog = StatsLog(event = e, roomID = rID, date = datetime.datetime.now())
 	currLog.save()
 
 
