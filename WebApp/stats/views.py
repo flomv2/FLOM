@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from stats.models import StatsLog, Day,  Month, Year
 from django.http import HttpResponse
-from datetime import datetime
+#from datetime import datetime
 from django.core.cache import cache
 import time
 import datetime
@@ -149,6 +149,7 @@ def startThread():
 
 def importLog(ID, now, duration):	
 	query = None
+	#Finds different events depending on the RoomID and the day/month/year and then returns those events
 	if duration == 'day':
 		query = StatsLog.objects.filter(roomID=ID,date__month=now.month, date__day=now.day)
 	elif duration == 'month':
