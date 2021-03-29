@@ -22,6 +22,7 @@
  * Also, this is assuming you are using a breadboard or something, and 
  * can connect Vcc of both sensors to the Vin pin of the board. 
  * The sensors can be powered externally though, but all the ground pins might still need to be tied together (not sure though).
+ * Either way, it's fine to just use one sensor with this example.
  * 
  * If you have it plugged into your computer and want to use the Arduino IDE's
  * Serial Monitor or Serial Plotter, remember to set the baud rate to 115200.
@@ -74,8 +75,8 @@ Sorry, your browser does not support inline SVG.\
 #define PIR_2 D1                    //connects to output pin of sensor
 #define TOP_LED D4                  //LED next to antenna
 #define BOTTOM_LED D0               //LED next to USB
-int motion_sense1;                  //to store output of sensor
-int motion_sense2;                  //to store output of sensor
+int motion_sense1 = 0;              //to store output of sensor
+int motion_sense2 = 0;              //to store output of sensor
 unsigned long previousMillis = 0;   //to store time since last read
 unsigned long sensorMillis1 = 0;    //to store time since last state change
 unsigned long sensorMillis2 = 0;    //to store time since last state change
@@ -137,9 +138,10 @@ void handleRoot() {
 
 void setup() {
   //configure the data pins
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(D0, OUTPUT);
+  pinMode(TOP_LED, OUTPUT);
+  pinMode(BOTTOM_LED, OUTPUT);
   pinMode(PIR_1, INPUT);
+  pinMode(PIR_2, INPUT);
 
   //set up the serial interface
   delay(1000);
