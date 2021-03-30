@@ -26,3 +26,26 @@ We are currently building out our first hardware prototype for FLOM. Each of pro
 1. We are going to make any necessary changes to the current hardware codebase to make it compatible with the current prototype.
 2. Get a stable version of the software running with minimal bugs.
 3. Develop installation plan for the library, including location in each study room, how to power each sensor once in the study room, etc.
+
+## Pictures
+
+Here are some pictures of the current prototype:
+
+Entire prototype
+![Prototype](./md_images/prototype.png "Prototype")
+
+Microcontroller (power pins)
+![Microcontroller (power pins)](./md_images/microcontroller_power_pins.png "Microcontroller (power pins)")
+
+Microcontroller (data pin)
+![Microcontroller (data pin)](./md_images/microcontroller_data_pin.png "Microcontroller (data pin)")
+
+Microcontroller (micro-USB)
+![Microcontroller (micro-USB)](./md_images/microcontroller_microusb.png "Microcontroller (micro-USB)")
+
+Motion sensor (with cap)
+![Motion sensor (with cap)](./md_images/sensor_cap.png "Motion sensor (with cap)")
+
+Motion sensor (without cap)
+![Motion sensor (without cap)](./md_images/sensor_nocap.png "Motion sensor (without cap)")
+

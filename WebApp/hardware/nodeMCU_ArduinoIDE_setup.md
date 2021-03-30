@@ -1,11 +1,13 @@
-**Selected Board:**
-HiLetgo NodeMCU LUA ESP8266 CP2102 ESP-12E Development Board
+# NodeMCU with ArduinoIDE Setup
 
-http://hiletgo.com/ProductDetail/1906570.html
-https://www.amazon.com/HiLetgo-Internet-Development-Wireless-Micropython/dp/B081CSJV2V?th=1
+## Selected Board
+Board we're using: HiLetgo NodeMCU LUA ESP8266 CP2102 ESP-12E Development Board
+
+HiLetgo link: http://hiletgo.com/ProductDetail/1906570.html
+Amazon link: https://www.amazon.com/HiLetgo-Internet-Development-Wireless-Micropython/dp/B081CSJV2V?th=1
 
 
-**Steps of How to use the NodeMCU with Arduino core:**
+## How to use the NodeMCU with the Arduino core
 
 Follow instructions below, and/or reference: https://github.com/esp8266/Arduino
 
@@ -28,7 +30,7 @@ Follow instructions below, and/or reference: https://github.com/esp8266/Arduino
     
     (You canleave other default settings for now)
 
-**Now to test the board:**
+## Testing the Board
 
 7. You can use the provided example Blink program to make the on-board LED blink. Go to: 
   File > Examples > Examples for NodeMCU 1.0 (ESP-12E Module) > ESP8266 > Blink
