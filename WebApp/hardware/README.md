@@ -38,7 +38,7 @@ Microcontroller (power pins)
 ![Microcontroller (power pins)](./md_images/microcontroller_power_pins.png "Microcontroller (power pins)")
 
 Microcontroller (data pin)
-![Microcontroller (data pin)](./md_images/microcontroller_data_pins.png "Microcontroller (data pin)")
+![Microcontroller (data pin)](./md_images/microcontroller_data_pin.png "Microcontroller (data pin)")
 
 Microcontroller (micro-USB)
 ![Microcontroller (micro-USB)](./md_images/microcontroller_microusb.png "Microcontroller (micro-USB)")
