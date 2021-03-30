@@ -48,3 +48,4 @@ Motion sensor (with cap)
 
 Motion sensor (without cap)
 ![Motion sensor (without cap)](./md_images/sensor_nocap.png "Motion sensor (without cap)")
+
