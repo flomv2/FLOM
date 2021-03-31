@@ -38,7 +38,6 @@ def index(request, floor):
 	'''
 	return cache.get("display" + floor)
 
-@login_required
 def enterRoom(request, floor, ID, password):
 	'''
 	This function is called when someone enters a room
@@ -68,7 +67,6 @@ def enterRoom(request, floor, ID, password):
 	else:
 		return HttpResponse("Room Not Found")
 
-@login_required
 def exitRoom(request, floor, ID, password):
 	'''
 	This function is called when someone exits a room
