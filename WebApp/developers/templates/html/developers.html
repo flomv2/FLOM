@@ -1,0 +1,47 @@
+{# developers.html #}
+{# template for displaying the about page (prolly like a paragraph about our tech stack) #}
+{% extends "html/main.html" %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}" type="style/css" />
+{% endblock %}
+
+{% block body %}
+<div class="container">
+   <div class="about" >
+         <div class="text">
+            <br>
+            <br>
+            <br>
+            <br>
+            <b><h4>FLOM Developers</h4></b>
+             <div class = "links" style = "align-items: right;">
+                Spring 2019
+                <br>
+                <a href = "https://github.com/prashb99">prashb99</a>,
+                <a href = "https://github.com/Wixby">Wixby</a>, <a href = "https://github.com/jgaltman">jgaltman</a>,
+                <a href = "https://github.com/youngcc3157">youngcc3157</a>, <a href = "https://github.com/kaijianZ">kaijianZ</a>,
+                <a href = "https://github.com/jingsting">jingsting</a>
+                <br>
+                <br>
+                Summer 2019
+                <br>
+                <a href = "https://github.com/prashb99">prashb99</a>, 
+                <a href = "https://github.com/Jason-Durr">Jason-Durr</a>, <a href = "https://github.com/SquidThePrinter">SquidThePrinter</a>,
+                <a href = "https://github.com/pangtsu">Jiawen-Lin</a>, <a href = "https://github.com/Jcherella">Jcherella</a>,
+                <a href = "https://github.com/barnesv17">barnesv17</a>,  <a href = "https://github.com/emansyl">Emmanuel Sylvester</a>,
+                <a href = "https://github.com/ChrisReed0114">ChrisReed0114</a>, <a href = "https://github.com/UnMcDanno">Junyi Zhang</a>
+                <br>
+                <br>
+                Spring 2021
+                <br>
+                <a href = "https://github.com/prashb99">prashb99</a>, 
+                <a href = "https://github.com/kopitp">kopitp</a>, <a href = "https://github.com/samspre">Samantha Sprecace</a>,
+                <a href = "https://github.com/Kadams35">Kacy Adams</a>, <a href = "https://github.com/drewszoke">Andrew Szoke</a>,
+                <a href = "https://github.com/schacm">Mark Schachter</a>
+             </div>
+         </div>
+   </div>
+</div>
+{% endblock %}
