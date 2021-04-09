@@ -21,6 +21,7 @@ from graphDisplay import views as graphViews
 
 router = routers.DefaultRouter()
 router.register(r'StatsLog', graphViews.StatsLogView, 'StatsLog')
+router.register(r'Days', graphViews.DayView, 'Days')
 
 urlpatterns = [
 

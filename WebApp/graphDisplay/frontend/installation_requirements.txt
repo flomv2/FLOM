@@ -1,0 +1,7 @@
+Tutorial Links for Django/React
+https://www.digitalocean.com/community/tutorials/build-a-to-do-application-using-django-and-react
+
+Installation:
+sudo apt-get install npx (may have to use npm to get npx if on windows)
+pip install djangorestframework django-cors-headers
+npm install bootstrap reactstrap --legacy-peer-deps
