@@ -21,11 +21,12 @@ We are currently building out our first hardware prototype for FLOM. Each of pro
 - Amazon Link: https://www.amazon.com/Antrader-Breadboard-Dupont-Arduino-Raspberry/dp/B07S2RH6Q4/
 - Purpose: To connect controller to motion sensor.
 
-## Next Development Steps
+## Future Development
 
-1. We are going to make any necessary changes to the current hardware codebase to make it compatible with the current prototype.
-2. Get a stable version of the software running with minimal bugs.
-3. Develop installation plan for the library, including location in each study room, how to power each sensor once in the study room, etc.
+1. Finish rewriting of software so that each controller runs one single configuration file.
+2. Change OTA so that all controllers can pull updates from a central server instead of having to update each one individually.
+3. Have way to check if each controller is up and working properly.
+4. Develop installation plan for the library, including location in each study room, how to power each sensor once in the study room, etc.
 
 ## Pictures
 
