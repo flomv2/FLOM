@@ -1,40 +1,10 @@
-/* This program demontrates the use of three HC-SR501 PIR Motion Sensors, and connecting to wifi.
-   The sensor outputs are read every half second.
-   A simple web server is created to show sensor and room status, and is updated every 2 seconds.
-   Room status is set as occupied if there is motion detected by any sensor,
-   and is set as empty after 5 minutes of no motion at all.
-
-   NOTE, you must set the wifi network credentials (name and password) manually below
-   in order to connect the server to wifi, if you want to see the web page.
-   If you don't, the program will still work normally but obviously just can't connect to the network.
-
-   When the program starts, it will print to Serial the IP address of the server.
-   Paste that address into your web browser to see the page. If you open the Serial Monitor
-   too late and miss the IP address, just click the reset button on the board.
-
-   Connections:
-   (Sensor -> NodeMcu):
-       Vcc -> Vin
-       Gnd -> Gnd
-       OUT -> D7 (for one sensor)
-       OUT -> D6 (for the other sensor)
-       OUT -> D5 (for the third sensor)
-   NOTE, this is assuming you are powering the board with a microUSB cable.
-   Also, this is assuming you are using a breadboard or something, and
-   can connect Vcc of all sensors to the Vin pin of the board.
-   The sensors can be powered externally though, but all the ground pins might still need to be tied together (not sure though).
-   Either way, it's fine to just use one sensor with this example.
-
-   If you have it plugged into your computer and want to use the Arduino IDE's
-   Serial Monitor or Serial Plotter, remember to set the baud rate to 115200.
-   Also, notice that setting the LED pins to LOW turns on the LED, and setting to HIGH
-   turns them off. This is because the LEDs are configured as Active-Low.
+/*
+  Basic implementaion of a FLOM room/node. See README for instructions.
 */
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-
 #include <ESP8266HTTPClient.h>
 
 /* TODO: Set these to your desired credentials. */
@@ -42,7 +12,8 @@ const char *ssid = "ENTER_YOUR_WIFI";     //Enter your WIFI ssid (name of the ne
 const char *password = "ENTER_PASSWORD";  //Enter your WIFI password
 
 /* Some HTML code to display sensors and room status in web browser.
-   The page will show 3 circles to simulate a red LED for each sensor, and the room.
+   The page will show a circle to simulate a red LED for each sensor,
+   and one for the room status. Also shows time in each state.
    The page will automatically refresh every 2 seconds to get the current info.
 */
 #define HTML_CODE "<!DOCTYPE html>\
@@ -57,50 +28,56 @@ const char *password = "ENTER_PASSWORD";  //Enter your WIFI password
 <text x=20 y=15 fill=black font-size=20>Sensor 1</text>\
 <circle cx=55 cy=55 r=30 stroke=black stroke-width=4 fill=%s />\
 <text x=0 y=105 fill=black>Time in this state:</text>\
-<text x=5 y=120 fill=black>%s </text>\
+<text x=5 y=120 fill=black>%s</text>\
 <text x=205 y=15 fill=black font-size=20>Sensor 2</text>\
 <circle cx=240 cy=55 r=30 stroke=black stroke-width=4 fill=%s />\
 <text x=185 y=105 fill=black>Time in this state:</text>\
-<text x=190 y=120 fill=black>%s </text>\
+<text x=190 y=120 fill=black>%s</text>\
 <text x=115 y=155 fill=black font-size=20>Sensor 3</text>\
 <circle cx=150 cy=195 r=30 stroke=black stroke-width=4 fill=%s />\
 <text x=95 y=245 fill=black>Time in this state:</text>\
-<text x=100 y=260 fill=black>%s </text>\
+<text x=100 y=260 fill=black>%s</text>\
 <text x=90 y=330 fill=black font-size=25>Room Status</text>\
 <circle cx=150 cy=420 r=70 stroke=black stroke-width=4 fill=%s />\
 <text x=95 y=515 fill=black>Time in this state:</text>\
-<text x=100 y=530 fill=black>%s </text>\
+<text x=100 y=530 fill=black>%s</text>\
 Sorry, your browser does not support inline SVG.\
 </svg>\
 </body>\
 </html>"
 
-#define HTML_CODE_LENGTH 1200
-
+/*
+  Calculate max length of html code (in characters/bytes)
+  5 is length of "white", 12 is length of time string (HH:MM:SS.MIL), and there are 4 groups of these
+  -(2*8) is for the 8 format specifiers ("%s") being replaced
+  sizeof() function includes the terminating null character (so it adds 1 to strlen)
+*/
+#define MAX_HTML_LENGTH (sizeof(HTML_CODE) + (4*(5+12) - 2*8))
 
 
 #define READ_INTERVAL 500           //time between reads in milliseconds
-#define EMPTY_INTERVAL (1*60*1000)  //time in milliseconds of no activity to determine room is empty. 5*60*1000 is 5 minutes
-#define NUM_SENSORS 3               //Number of sensors being used
+#define EMPTY_INTERVAL (5*60*1000)  //time in milliseconds of no activity to determine room is empty. 5*60*1000 is 5 minutes
+#define ENTER_INTERVAL (1*60*1000)  //time in milliseconds of activity to determine room is occupied. 1*60*1000 is 1 minute
+// #define NUM_SENSORS 3               //Number of sensors being used
 #define PIR_1 D5                    //connects to output pin of sensor
 #define PIR_2 D6                    //connects to output pin of sensor
 #define PIR_3 D7                    //connects to output pin of sensor
 #define TOP_LED D4                  //LED next to antenna
 #define BOTTOM_LED D0               //LED next to USB
 
-int motion_sense1 = 0;              //to store output of sensor
-int motion_sense2 = 0;              //to store output of sensor
-int motion_sense3 = 0;              //to store output of sensor
+byte motion_sense1 = 0;             //to store output of sensor
+byte motion_sense2 = 0;             //to store output of sensor
+byte motion_sense3 = 0;             //to store output of sensor
 unsigned long previousMillis = 0;   //to store time since last read
 unsigned long sensorMillis1 = 0;    //to store time since last state change
 unsigned long sensorMillis2 = 0;    //to store time since last state change
 unsigned long sensorMillis3 = 0;    //to store time since last state change
-unsigned long motionMillis = 0;     //to store time since last state change of total motion 
+unsigned long motionMillis = 0;     //to store time since last state change of total motion
 unsigned long roomMillis = 0;       //to store time since last state change of room status
 bool motion = false;                //current status of a room based on movement
 bool occupied = false;              //determine if a room is occupied or not
 bool send_request = false;
-bool failed = false;
+bool request_failed = false;
 
 ESP8266WebServer server(80);
 
@@ -118,7 +95,7 @@ void time_string(char *string, unsigned long _millis) {
 
 /*this function is called everytime a browser requests to access the page*/
 void handleRoot() {
-  char html[HTML_CODE_LENGTH];  //will hold the HTML code
+  char html[MAX_HTML_LENGTH];  //will hold the HTML code
   char sen1[13];   //will hold the time for sensor1
   char sen2[13];   //will hold the time for sensor2
   char sen3[13];   //will hold the time for sensor3
@@ -130,7 +107,7 @@ void handleRoot() {
   time_string(room, roomMillis);
 
   //fill in the HTML code with the current values
-  snprintf(html, HTML_CODE_LENGTH, HTML_CODE,
+  snprintf(html, MAX_HTML_LENGTH, HTML_CODE,
            motion_sense1 ? "red" : "white",
            sen1,
            motion_sense2 ? "red" : "white",
@@ -140,6 +117,7 @@ void handleRoot() {
            occupied ? "red" : "white",
            room
           );
+  Serial.printf("Update Server: %d %s, %d %s, %d %s\n", motion_sense1, sen1, motion_sense2, sen2, motion_sense3, sen3);
   server.send(200, "text/html", html);
 }
 
@@ -165,7 +143,7 @@ int send_roomUpdate() {
 
     // httpCode will be negative on error
     if (httpCode > 0) {
-      // HTTP header has been send and Server response header has been handled
+      // HTTP header has been sent and Server response header has been handled
       Serial.printf("[HTTP] GET... code: %d\n", httpCode);
 
       // file found at server
@@ -178,25 +156,7 @@ int send_roomUpdate() {
     } //http>0
     else {
       Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-      Serial.println("trying again...");
-      httpCode = http.GET();
-
-      if (httpCode > 0) {
-        // HTTP header has been send and Server response header has been handled
-        Serial.printf("[HTTP] GET... code: %d\n", httpCode);
-
-        // file found at server
-        if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-          Serial.printf("Payload:\n<<%s\n>>\n", http.getString().c_str());
-        } else {
-          Serial.println("TODO: handle this response code");
-        }
-
-      } else {
-        Serial.printf("[HTTP] GET... failed AGAIN, error: %s\n", http.errorToString(httpCode).c_str());
-        Serial.println("don't try again"); //TODO: should we keep trying? This should be handled somehow
-      }
-
+      //TODO: handle failure. Should it be handled in here or outside of this function? Probably outside.
     }//else (if http>0)
 
     Serial.println("[HTTP] end...");
@@ -212,8 +172,6 @@ int send_roomUpdate() {
 
 void setup() {
   //configure the data pins
-  //  pinMode(TOP_LED, OUTPUT);
-  //  pinMode(BOTTOM_LED, OUTPUT);
   pinMode(PIR_1, INPUT);
   pinMode(PIR_2, INPUT);
   pinMode(PIR_3, INPUT);
@@ -225,6 +183,7 @@ void setup() {
 
   //set up the wifi connection
   Serial.print("Configuring wifi...");
+  WiFi.setAutoReconnect(true);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) { //wait until connection is established
     delay(500);
@@ -244,32 +203,37 @@ void loop() {
   int response = 0;
 
   //determine status of the room (occupied or empty)
-  //The room is empty if there has been no motion for 5 minutes (EMPTY_INTERVAL)
+  //The room is empty if there has been no motion for 5 minutes (or whatever EMPTY_INTERVAL is)
   if (!motion && currentMillis - motionMillis >= EMPTY_INTERVAL) {
     if (occupied) {
       send_request = true;
     }
   }
   else {
-    if (!occupied) {
+    //wait for a minute of detection before setting room as occupied.
+    //This is to avoid false triggers or someone just going in and out but not staying.
+    if (!occupied && currentMillis - motionMillis >= ENTER_INTERVAL) {
       send_request = true;
     }
   }
 
-  if (send_request ) {
-    //    if (!failed) {
+  //status has changed, so update the room status variables
+  if (send_request) {
     roomMillis = currentMillis;
     occupied = !occupied;
-    //    }
+  }
+
+  //this will send a request if a change occurs or if the request failed on previous iteration of loop
+  if (send_request || request_failed) {
     response = send_roomUpdate();
     send_request = false;
   }
 
   if (response < 0) { //request did not go through
-    failed = true;
+    request_failed = true;
+    delay(100);
   } else {
-    failed = false;
-    //    send_request = false;
+    request_failed = false;
   }
 
   //if READ_INTERVAL milliseconds have passed since last reads, take new readings
@@ -277,9 +241,9 @@ void loop() {
     previousMillis = currentMillis;   //update current time
 
     //take readings
-    int reading1 = digitalRead(PIR_1);
-    int reading2 = digitalRead(PIR_2);
-    int reading3 = digitalRead(PIR_3);
+    byte reading1 = digitalRead(PIR_1);
+    byte reading2 = digitalRead(PIR_2); //set these equal to zero and don't do the digitalRead if no sensor is attached
+    byte reading3 = digitalRead(PIR_3);
 
     bool active_reading = reading1 || reading2 || reading3;
 
@@ -308,9 +272,31 @@ void loop() {
     motion_sense3 = reading3;
     motion = active_reading;
     Serial.printf("%d %d %d\n", reading1, reading2, reading3); //if connected to serial, output can be logged with Tools -> Serial Plotter
-    //    digitalWrite(BOTTOM_LED, !motion_sense1); //if sensor output is HIGH, LED by USB port will turn on (and vice versa)
-    //    digitalWrite(TOP_LED, !motion_sense2); //if sensor output is HIGH, LED by antenna will turn on (and vice versa)
-  }
+  }//READ_INTERVAL
+
+  /*
+    //Check if wifi disconnected and if so, recconect.
+    //This should happen automatically, due to the line in Setup: WiFi.setAutoReconnect(true);
+    //But if that is set to false, something like this could be done
+
+    if (WiFi.status() != WL_CONNECTED) { //wait until connection is established
+    Serial.print("Wifi disconnected. Reconnecting...");
+    int tries = 0;
+    int max_tries = 20;
+    WiFi.reconnect();
+    while (WiFi.status() != WL_CONNECTED) { //wait until connection is established
+      delay(500);
+      Serial.print(".");
+      tries++;
+      if (tries > max_tries) {
+        Serial.println("\nIt's been 10 seconds");
+        //restart the esp maybe?
+        break;
+      }
+    }
+    }//wifi.status
+  */
 
   server.handleClient();  //this is required for the server to work correctly
-}
+
+}//loop
