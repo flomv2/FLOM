@@ -1,7 +1,7 @@
 # General Description:
 This program goes on the NodeMCU and demontrates the use of three HC-SR501 PIR Motion Sensors, hosting a server, and connecting to the FLOM server.
 The sensor outputs are read every half second.
-A simple web server is created to show sensor and room status, and updates every 2 seconds.
+A simple web server is created to show sensor and room status, and updates every 3 seconds.
 Room status is set as occupied if there is a full minute of motion detected by any sensor,
 and is set as empty after 5 minutes of no motion at all.
 
@@ -15,9 +15,11 @@ If you have it plugged into your computer and want to use the Serial Monitor, re
 When the program starts, it will print to Serial the IP address of the ESP8266 server (not FLOM).
 
 Paste that address into your web browser to see the page. If you open the Serial Monitor
-too late and miss the IP address, just click the reset button on the board.
+too late and miss the IP address, just click the reset button on the board. The browser will automatically refresh the page every 3 seconds.
 
-The page shows a circle indicator for each sensor, and one for the room status. An indicator will be red if motion has been detected, and white when there is no motion. The sensor modules have adjustible timers on them to have the signal stay high for a set period of time after each trigger. Turn the timer knob to about 4 o'clock for a period of around 10-30 seconds. This takes some experimenting.
+The page shows a circle indicator for each sensor, and one for the room status. An indicator will be red if motion has been detected, and white when there is no motion. 
+
+The sensor modules have adjustible timers on them to have the signal stay high for a set period of time after each trigger. Turn the timer knob to about 3 or 4 o'clock to get a period of around 10-40 seconds. This takes some experimenting.
 
 # FLOM Server:
 This demo assumes you have a FLOM server running on your local network.

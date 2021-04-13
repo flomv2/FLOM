@@ -14,16 +14,32 @@ const char *password = "ENTER_PASSWORD";  //Enter your WIFI password
 /* Some HTML code to display sensors and room status in web browser.
    The page will show a circle to simulate a red LED for each sensor,
    and one for the room status. Also shows time in each state.
-   The page will automatically refresh every 2 seconds to get the current info.
+   The page will automatically refresh every 3 seconds to get the current info.
 */
 #define HTML_CODE "<!DOCTYPE html>\
 <html>\
 <head>\
-<meta http-equiv='refresh' content='2'/>\
+<meta http-equiv='refresh' content='3'/>\
 <title>ESP8266 Demo</title>\
 </head>\
 <body>\
-<h1>Room Occupancy Detection</h1>\
+<h1>Room %s Occupancy Detection</h1>\
+<p>Last Updated <script type=text/javascript>\
+var d=new Date();\
+var h=d.getHours();\
+var m=d.getMinutes();\
+var s=d.getSeconds();\
+m=pad(m);\
+s=pad(s);\
+if(h>12)h=h-12;\
+document.write(h+\":\"+m+\":\"+s+\" \");\
+if(d.getHours()>11)document.write(\"PM\");\
+else document.write(\"AM\");\
+function pad(i){\
+if(i<10)i=\"0\"+i;\
+return i;\
+}\
+</script></p>\
 <svg width=300 height=550>\
 <text x=20 y=15 fill=black font-size=20>Sensor 1</text>\
 <circle cx=55 cy=55 r=30 stroke=black stroke-width=4 fill=%s />\
@@ -50,9 +66,10 @@ Sorry, your browser does not support inline SVG.\
   Calculate max length of html code (in characters/bytes)
   5 is length of "white", 12 is length of time string (HH:MM:SS.MIL), and there are 4 groups of these
   -(2*8) is for the 8 format specifiers ("%s") being replaced
+  +2 is for room number with a letter, minus the format specifier
   sizeof() function includes the terminating null character (so it adds 1 to strlen)
 */
-#define MAX_HTML_LENGTH (sizeof(HTML_CODE) + (4*(5+12) - 2*8))
+#define MAX_HTML_LENGTH (sizeof(HTML_CODE) + (4*(5+12) - 2*8) +2)
 
 
 #define READ_INTERVAL 500           //time between reads in milliseconds
@@ -64,6 +81,11 @@ Sorry, your browser does not support inline SVG.\
 #define PIR_3 D7                    //connects to output pin of sensor
 #define TOP_LED D4                  //LED next to antenna
 #define BOTTOM_LED D0               //LED next to USB
+
+//TODO: these should be read from flash memory. Perhaps a config file.
+const char floor_number = '3';
+const char *room_number = "323A";
+const char *room_passcode = "pass";
 
 byte motion_sense1 = 0;             //to store output of sensor
 byte motion_sense2 = 0;             //to store output of sensor
@@ -108,6 +130,7 @@ void handleRoot() {
 
   //fill in the HTML code with the current values
   snprintf(html, MAX_HTML_LENGTH, HTML_CODE,
+           room_number,
            motion_sense1 ? "red" : "white",
            sen1,
            motion_sense2 ? "red" : "white",
@@ -124,19 +147,18 @@ void handleRoot() {
 
 int send_roomUpdate() {
   WiFiClient client;
-
   HTTPClient http;
 
-  char url[48];
+  byte url_size = 49; //TODO: the size of this buffer will have to be changed when the real passcode is used
+  char url[url_size]; 
 
   //TODO: change the IP address to your own (of the machine running the server)
-  snprintf(url, 48, "http://192.168.1.24:8000/floor/%s/3/311/pass", occupied ? "enter" : "exit");
+  snprintf(url, url_size, "http://192.168.1.24:8000/floor/%s/%c/%s/%s",
+           occupied ? "enter" : "exit", floor_number, room_number, room_passcode);
   Serial.printf("URL string is: %s\n", url);
 
   Serial.print("[HTTP] begin...\n");
   if (http.begin(client, url)) {  // HTTP
-
-
     Serial.print("[HTTP] GET...\n");
     // start connection and send HTTP header
     int httpCode = http.GET();
@@ -156,7 +178,6 @@ int send_roomUpdate() {
     } //http>0
     else {
       Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-      //TODO: handle failure. Should it be handled in here or outside of this function? Probably outside.
     }//else (if http>0)
 
     Serial.println("[HTTP] end...");
@@ -184,7 +205,7 @@ void setup() {
   //set up the wifi connection
   Serial.print("Configuring wifi...");
   WiFi.setAutoReconnect(true);
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, password); //no parameters means use credentials of previous connection, which is stored in flash
   while (WiFi.status() != WL_CONNECTED) { //wait until connection is established
     delay(500);
     Serial.print(".");
@@ -209,10 +230,10 @@ void loop() {
       send_request = true;
     }
   }
-  else {
+  else if (motion && currentMillis - motionMillis >= ENTER_INTERVAL) {
     //wait for a minute of detection before setting room as occupied.
     //This is to avoid false triggers or someone just going in and out but not staying.
-    if (!occupied && currentMillis - motionMillis >= ENTER_INTERVAL) {
+    if (!occupied) {
       send_request = true;
     }
   }
@@ -246,19 +267,25 @@ void loop() {
     byte reading3 = digitalRead(PIR_3);
 
     bool active_reading = reading1 || reading2 || reading3;
-
+    char time[13];
     //if the sensor1 state has changed, reset the state timer
     if (motion_sense1 != reading1) {
+      time_string(time, sensorMillis1);
+      Serial.printf("Sensor_1 was %d for %s\n", motion_sense1, time);
       sensorMillis1 = currentMillis;
     }
 
     //if the sensor2 state has changed, reset the state timer
     if (motion_sense2 != reading2) {
+      time_string(time, sensorMillis2);
+      Serial.printf("Sensor_2 was %d for %s\n", motion_sense2, time);
       sensorMillis2 = currentMillis;
     }
 
     //if the sensor3 state has changed, reset the state timer
     if (motion_sense3 != reading3) {
+      time_string(time, sensorMillis3);
+      Serial.printf("Sensor_3 was %d for %s\n", motion_sense3, time);
       sensorMillis3 = currentMillis;
     }
 
