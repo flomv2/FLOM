@@ -1,9 +1,0 @@
-#ifndef ROOMS_LOCATIONS_H_
-#define ROOMS_LOCATIONS_H_
-
-#define ROOM_1 101
-#define ROOM_2 102
-#define ROOM_3 103
-#define DATABASE 201
-
-#endif //COUNTRY_ROADS_HARDWARE_LOCATIONS_H_
