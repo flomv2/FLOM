@@ -25,9 +25,8 @@ body{
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: #ffffff;
+  background-color: none;
   min-width: 120px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
 
 }
@@ -35,7 +34,7 @@ body{
 /* Used under dropdown-content for login and logout buttons */
 .dropdown-content a {
   font-weight: bold;
-  background-color: #b3252c;
+  background-color: #424242;
   color: white;
   padding: 10px 27px;
   text-align: center;
@@ -196,7 +195,7 @@ div .landing {
 }
 
 .login-sub{
-    background-color: #b3252c;
+    background-color: #424242;
     border: none;
     color: white;
     font-weight: bold;
@@ -211,8 +210,16 @@ div .landing {
     text-decoration: none;
 }
 
+.login-sub a {
+    text-decoration: none;
+    color: white;
+}
+
 .login-sub:hover {
-  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+    text-decoration: underline;
+    color: white;
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),
+                0 17px 50px 0 rgba(0,0,0,0.19);
 }
 
 /* LOGOUT PAGE CSS */
