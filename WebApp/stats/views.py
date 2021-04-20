@@ -97,8 +97,13 @@ def createTimeObject(ID, duration, now):
 	timeObject.date = now
 	timeObject.roomID = ID
 	logList = importLog(ID, now, duration)
-	timeObject.totalOccupants = getOccupants(logList, duration)
-	timeObject.avgOccLength = calcAvgOccLength(logList, duration)
+	# print("New timeObject time:", timeObject.date)
+	# print("Duration:", duration)
+	# print("timeObject type:", type(timeObject))
+	timeObject.totalOccupants = getOccupants(logList)
+	timeObject.avgOccLength = calcAvgOccLength(logList)
+	if timeObject.avgOccLength == 0:
+		timeObject.avgOccLength = datetime.timedelta()
 	timeObject.save()
 
 
@@ -153,51 +158,46 @@ def importLog(ID, now, duration):
 	if duration == 'day':
 		query = StatsLog.objects.filter(roomID=ID,date__month=now.month, date__day=now.day)
 	elif duration == 'month':
-		query = Day.objects.filter(roomID=ID, date__year=now.year, date__month=now.month)
+		query = StatsLog.objects.filter(roomID=ID, date__year=now.year, date__month=now.month)
 	elif duration == 'year':
-		query = Month.objects.filter(roomID=ID, date__year=now.year)
+		query = StatsLog.objects.filter(roomID=ID, date__year=now.year)
 	return query
 
 
-def getOccupants(query, duration):
+def getOccupants(query):
 	'''
 	Return the number of people in the room.
 	Gets information from logs.
+	Returns the amount of events in the log 
+	divided by two since everyone that enters a
+	room has to exit the room.
 	'''
-	if duration == 'day':
-		return int(len(query)/2)
-	elif duration == 'month':
-		return int(query.aggregate(Sum(F('totalOccupants'))))
-	elif duration == 'year':
-		return int(query.aggregate(Sum(F('totalOccupants'))))
-	return 0
+	return int(len(query)/2)
 
 def calcTimeDifference(query):
+	#calculates the time difference between the FIRST person entering the room and when the first person leaves the room
+	#This is to help handle the issue of multiple people entering and then leaving a room
 	timeDiff = []
 	tmp_entry = None
 	for log in query:
-		# if the log contains entry data
-		if log.event == 1:
+		# if the log contains entry data 
+		if log.event == 1 and tmp_entry == None:
 			tmp_entry = log
-		# else the log contains exit data
-		else:
+		# else the log contains exit data (and doesn't start with exit data)
+		elif log.event == 0 and tmp_entry != None:
 			timeDiff.append(log.date - tmp_entry.date)
+			tmp_entry = None
 	return timeDiff
 
-def calcAvgOccLength(query, duration):
+def calcAvgOccLength(query):
 	'''
 	Return the average amount of time
 	the room has spent occupied. 
 	Gets information from logs.
 	'''
-	if duration == 'day':
-		timeDiff = calcTimeDifference(query)
-		if len(timeDiff) != 0:
-			return sum(timeDiff, datetime.timedelta(0)) / len(timeDiff)
-		else:
-			return 0
-	elif duration == 'month':
-		return query.aggregate(Avg(F('avgOccLength')))
-	elif duration == 'year':
-		return query.aggregate(Avg(F('avgOccLength')))
+	timeDiff = calcTimeDifference(query)
+	if len(timeDiff) != 0:
+		return sum(timeDiff, datetime.timedelta(0)) / len(timeDiff)
+	else:
+		return 0
 	return None
