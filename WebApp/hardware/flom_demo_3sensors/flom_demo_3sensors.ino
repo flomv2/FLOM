@@ -2,14 +2,22 @@
   Basic implementaion of a FLOM room/node. See README for instructions.
 */
 
+#include <LittleFS.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>  //#include <ESP8266WebServer.h>
+#include <AsyncElegantOTA.h>
+#include <ArduinoJson.h>
+
 
 /* TODO: Set these to your desired credentials. */
 const char *ssid = "ENTER_YOUR_WIFI";     //Enter your WIFI ssid (name of the network)
 const char *password = "ENTER_PASSWORD";  //Enter your WIFI password
+const char *flom_ip_addr = "LAPTOP_IP_ADDR";  //IP Address of FLOM Server
+const int flom_port = 8000;
+
 
 /* Some HTML code to display sensors and room status in web browser.
    The page will show a circle to simulate a red LED for each sensor,
@@ -75,17 +83,21 @@ Sorry, your browser does not support inline SVG.\
 #define READ_INTERVAL 500           //time between reads in milliseconds
 #define EMPTY_INTERVAL (5*60*1000)  //time in milliseconds of no activity to determine room is empty. 5*60*1000 is 5 minutes
 #define ENTER_INTERVAL (1*60*1000)  //time in milliseconds of activity to determine room is occupied. 1*60*1000 is 1 minute
-// #define NUM_SENSORS 3               //Number of sensors being used
+#define FAIL_INTERVAL (10*1000)     //10 seconds between retries (takes 5 of those seconds to timeout though)
+
 #define PIR_1 D5                    //connects to output pin of sensor
 #define PIR_2 D6                    //connects to output pin of sensor
 #define PIR_3 D7                    //connects to output pin of sensor
 #define TOP_LED D4                  //LED next to antenna
 #define BOTTOM_LED D0               //LED next to USB
 
-//TODO: these should be read from flash memory. Perhaps a config file.
-const char floor_number = '3';
-const char *room_number = "323A";
-const char *room_passcode = "pass";
+#define FLOOR_STR_LEN 2             //length of string holding the floor number
+#define ROOM_STR_LEN 5              //length of string holding the room number
+#define PASSCODE_STR_LEN 5          //length of string holding the passcode
+
+char floor_num[FLOOR_STR_LEN];      //cstring holding the floor number
+char room_num[ROOM_STR_LEN];        //cstring holding the room number
+char passcode[PASSCODE_STR_LEN];    //cstring holding the passcode
 
 byte motion_sense1 = 0;             //to store output of sensor
 byte motion_sense2 = 0;             //to store output of sensor
@@ -96,12 +108,13 @@ unsigned long sensorMillis2 = 0;    //to store time since last state change
 unsigned long sensorMillis3 = 0;    //to store time since last state change
 unsigned long motionMillis = 0;     //to store time since last state change of total motion
 unsigned long roomMillis = 0;       //to store time since last state change of room status
+unsigned long requestMillis = 0;    //to store time since last GET request
 bool motion = false;                //current status of a room based on movement
 bool occupied = false;              //determine if a room is occupied or not
 bool send_request = false;
 bool request_failed = false;
 
-ESP8266WebServer server(80);
+AsyncWebServer server(80);
 
 
 /*takes in cstring (char array) of size 13, and a time in milliseconds,
@@ -116,7 +129,7 @@ void time_string(char *string, unsigned long _millis) {
 
 
 /*this function is called everytime a browser requests to access the page*/
-void handleRoot() {
+void handleRoot(AsyncWebServerRequest *request) {
   char html[MAX_HTML_LENGTH];  //will hold the HTML code
   char sen1[13];   //will hold the time for sensor1
   char sen2[13];   //will hold the time for sensor2
@@ -130,7 +143,7 @@ void handleRoot() {
 
   //fill in the HTML code with the current values
   snprintf(html, MAX_HTML_LENGTH, HTML_CODE,
-           room_number,
+           room_num,
            motion_sense1 ? "red" : "white",
            sen1,
            motion_sense2 ? "red" : "white",
@@ -141,20 +154,28 @@ void handleRoot() {
            room
           );
   Serial.printf("Update Server: %d %s, %d %s, %d %s\n", motion_sense1, sen1, motion_sense2, sen2, motion_sense3, sen3);
-  server.send(200, "text/html", html);
+  request->send(200, "text/html", html);
 }
 
 
+/*Send the GET Request to FLOM to enter or exit a room.*/
 int send_roomUpdate() {
   WiFiClient client;
   HTTPClient http;
 
   byte url_size = 49; //TODO: the size of this buffer will have to be changed when the real passcode is used
-  char url[url_size]; 
+  char url[url_size];
+
+  Serial.print("Floor Number: ");
+  Serial.println(floor_num);
+  Serial.print("Room Number: ");
+  Serial.println(room_num);
+  Serial.print("Passcode: ");
+  Serial.println(passcode);
 
   //TODO: change the IP address to your own (of the machine running the server)
-  snprintf(url, url_size, "http://192.168.1.24:8000/floor/%s/%c/%s/%s",
-           occupied ? "enter" : "exit", floor_number, room_number, room_passcode);
+  snprintf(url, url_size, "http://%s:%d/floor/%s/%s/%s/%s",
+           flom_ip_addr, flom_port, occupied ? "enter" : "exit", floor_num, room_num, passcode);
   Serial.printf("URL string is: %s\n", url);
 
   Serial.print("[HTTP] begin...\n");
@@ -168,17 +189,16 @@ int send_roomUpdate() {
       // HTTP header has been sent and Server response header has been handled
       Serial.printf("[HTTP] GET... code: %d\n", httpCode);
 
-      // file found at server
-      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
+      // request successfully received by server
+      if (httpCode == HTTP_CODE_OK) { //|| httpCode == HTTP_CODE_MOVED_PERMANENTLY
         Serial.printf("Payload:\n<<%s\n>>\n", http.getString().c_str());
       } else {
         Serial.println("TODO: handle this response code");
       }
-
     } //http>0
     else {
       Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-    }//else (if http>0)
+    }//else (http<0)
 
     Serial.println("[HTTP] end...");
     http.end();
@@ -191,8 +211,64 @@ int send_roomUpdate() {
 }
 
 
+/*
+  Loads JSON configuration file from flash file system.
+  Uses ArduinoJson library by Benoit Blanchon. https://github.com/bblanchon/ArduinoJson
+
+  Adapted from example code in the public domain created Aug 10, 2015 by Ivan Grokhotkov.
+
+  The json file is very basic, so we could just use a txt file and parse it manually,
+  but this a fancy way to do it and will be nice if the config file grows.
+*/
+bool loadConfig() {
+  File configFile = LittleFS.open("/room_info.json", "r");
+  if (!configFile) {
+    Serial.println("Failed to open config file");
+    return false;
+  }
+
+  size_t size = configFile.size();
+  if (size > 1024) {
+    Serial.println("Config file size is too large");
+    return false;
+  }
+
+  // Allocate a buffer to store contents of the file.
+  std::unique_ptr<char[]> buf(new char[size]);
+
+  // We don't use String here because ArduinoJson library requires the input
+  // buffer to be mutable. If you don't use ArduinoJson, you may as well
+  // use configFile.readString instead.
+  configFile.readBytes(buf.get(), size);
+
+  StaticJsonDocument<200> doc;
+  auto error = deserializeJson(doc, buf.get());
+  if (error) {
+    Serial.println("Failed to parse config file");
+    return false;
+  }
+
+  snprintf(floor_num, FLOOR_STR_LEN, doc["floor"]);
+  snprintf(room_num, ROOM_STR_LEN, doc["room"]);
+  snprintf(passcode, PASSCODE_STR_LEN, doc["pass"]);
+
+  return true;
+}
+
+
 void setup() {
-  //configure the data pins
+  //pull the pins low in case they are floating (not all being used)
+  //maybe pull down resistors should be used instead?
+  pinMode(PIR_1, OUTPUT);
+  pinMode(PIR_2, OUTPUT);
+  pinMode(PIR_3, OUTPUT);
+  delay(200);
+  digitalWrite(PIR_1, LOW);
+  digitalWrite(PIR_2, LOW);
+  digitalWrite(PIR_3, LOW);
+  delay(200);
+
+  //configure the data pins as input pins
   pinMode(PIR_1, INPUT);
   pinMode(PIR_2, INPUT);
   pinMode(PIR_3, INPUT);
@@ -202,8 +278,41 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
 
+
+  //mount filesystem and get room config data
+  Serial.println("Mounting FS...");
+  if (!LittleFS.begin()) {
+    Serial.println("Failed to mount file system");
+    //TODO: handle this
+  }
+  if (!loadConfig()) {
+    Serial.println("Failed to load config");
+    //TODO: handle this. Maybe assign example room data for demo/debug?
+  } else {
+    Serial.println("Config loaded");
+
+    //TODO: handle these if they fail. Maybe assign example room data for demo/debug?
+    if (floor_num) {
+      Serial.printf("Loaded floor_num: %s\n", floor_num);
+    } else {
+      Serial.println("Failed to load floor_num from json");
+    }
+    if (room_num) {
+      Serial.printf("Loaded room: %s\n", room_num);
+    } else {
+      Serial.println("Failed to load room_num from json");
+    }
+    if (passcode) {
+      Serial.printf("Loaded passcode: %s\n", passcode);
+    } else {
+      Serial.println("Failed to load passcode from json");
+    }
+  }
+
   //set up the wifi connection
+  Serial.printf("SSID Given: %s\n", ssid);
   Serial.print("Configuring wifi...");
+  WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
   WiFi.begin(ssid, password); //no parameters means use credentials of previous connection, which is stored in flash
   while (WiFi.status() != WL_CONNECTED) { //wait until connection is established
@@ -214,9 +323,9 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  server.on ( "/", handleRoot );
+  server.on( "/", handleRoot);
+  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
-  Serial.println ( "HTTP server started" );
 }
 
 void loop() {
@@ -245,19 +354,24 @@ void loop() {
   }
 
   //this will send a request if a change occurs or if the request failed on previous iteration of loop
-  if (send_request || request_failed) {
+  if (send_request || (request_failed && (currentMillis - requestMillis >= FAIL_INTERVAL))) {
     response = send_roomUpdate();
+    requestMillis = currentMillis; //should this be millis() instead of currentMillis?
     send_request = false;
+
+    if (response < 0) { //request did not go through
+      //should currentMillis be updated since a lot of time has passed?
+      //maybe this stuff could be at the end of the loop, after the reads
+      request_failed = true;
+      Serial.println("!!!!!!!!!\n\nREQUEST FAILED\n\n!!!!!!!!!!!");
+    } else {
+      request_failed = false;
+    }
   }
 
-  if (response < 0) { //request did not go through
-    request_failed = true;
-    delay(100);
-  } else {
-    request_failed = false;
-  }
 
   //if READ_INTERVAL milliseconds have passed since last reads, take new readings
+  //TODO: should we be using interrupts instead of always reading?
   if (currentMillis - previousMillis >= READ_INTERVAL) {
     previousMillis = currentMillis;   //update current time
 
@@ -301,29 +415,6 @@ void loop() {
     Serial.printf("%d %d %d\n", reading1, reading2, reading3); //if connected to serial, output can be logged with Tools -> Serial Plotter
   }//READ_INTERVAL
 
-  /*
-    //Check if wifi disconnected and if so, recconect.
-    //This should happen automatically, due to the line in Setup: WiFi.setAutoReconnect(true);
-    //But if that is set to false, something like this could be done
-
-    if (WiFi.status() != WL_CONNECTED) { //wait until connection is established
-    Serial.print("Wifi disconnected. Reconnecting...");
-    int tries = 0;
-    int max_tries = 20;
-    WiFi.reconnect();
-    while (WiFi.status() != WL_CONNECTED) { //wait until connection is established
-      delay(500);
-      Serial.print(".");
-      tries++;
-      if (tries > max_tries) {
-        Serial.println("\nIt's been 10 seconds");
-        //restart the esp maybe?
-        break;
-      }
-    }
-    }//wifi.status
-  */
-
-  server.handleClient();  //this is required for the server to work correctly
+  AsyncElegantOTA.loop();
 
 }//loop
